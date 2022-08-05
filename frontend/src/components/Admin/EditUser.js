@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { AuthUser } from '../AuthRouter';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Button,
     CssBaseline,
@@ -12,58 +11,65 @@ import {
     Typography,
     Container,
     createTheme,
-    ThemeProvider
-} from '@material-ui/core';
+    ThemeProvider,
 
+} from '@material-ui/core';
+import { AuthUser } from '../AuthRouter';
 
 
 const theme = createTheme();
 
-export default function SignIn() {
+export default function EditUser() {
 
     let auth = AuthUser()
-    let navigate = useNavigate()
+    const navigate = useNavigate()
+    const { state } = useLocation()
 
-
-    const initialUser = { "email": "", "password": "" }
+    // const [initialUser, setInitialUser] = useState({})
+    const initialUser = { name: "", "email": "", "password": "" }
     const [user, setUser] = useState(initialUser)
     const [isSubmit, setIsSubmit] = useState(false)
     const [formError, setFormError] = useState({})
-    const [userData, setUserData] = useState(false)
-    // const [data, setData] = useState(null)
+
+    const token = localStorage.getItem("adminConfig");
+    const header = { headers: { "Authorization": `Bearer ${token}` } }
+
+    useEffect(() => {
+        axios.post(`http://127.0.0.1:8080/admin/user/edit/`, { id: state._id }, header).then(res => setUser(res.data.data))
+
+    }, [])
 
     useEffect(() => {
 
         if (Object.keys(formError).length === 0 && isSubmit) {
-            console.log('data sending')
-            // handleSubmit()
+            // console.log(user)
         }
-    }, [formError, isSubmit, userData])
+
+    }, [formError, isSubmit])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         setIsSubmit(true)
         setFormError(validate(user))
 
-        if (Object.keys(formError).length === 0) {
 
-            const { data } = await axios.post('http://127.0.0.1:8080/login', user)
+        if (Object.keys(formError).length === 0 && isSubmit) {
 
-            if (data.status === 201 && !data.data[0].status) {
-                setFormError({ "error": "User was Blocked" })
-            } else if (data.status === 201) {
-                console.log(data)
-                auth.login(data)
-                navigate('/', { replace: true })
+            const userData = await axios.post('http://127.0.0.1:8080/admin/user/saveEdit/', user, header)
+            const data = userData.data
+
+            if (data.status === 201) {
+                navigate('/admin', { replace: false })
             }
             else {
                 setFormError({ "error": data.message })
+                // console.log(data)
             }
 
-
         }
-
     };
+
 
     const handleChange = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value })
@@ -74,22 +80,26 @@ export default function SignIn() {
         const error = {}
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
+        if (!value.name) {
+            error.name = "Username is required"
+        }
         if (!value.email) {
             error.email = "email is required"
         } else if (!regex.test(value.email)) {
             error.email = "Invalide email format"
 
         }
-        if (!value.password) {
-            error.password = "password is required"
-        } else if (value.password.length < 5) {
-            error.password = "password must be more than 4 characters"
-        } else if (value.password.length > 11) {
-            error.password = "password must be with in 10 characters"
-        }
+        // if (!value.password) {
+        //     error.password = "password is required"
+        // } else if (value.password.length < 5) {
+        //     error.password = "password must be more than 4 characters"
+        // } else if (value.password.length > 11) {
+        //     error.password = "password must be with in 10 characters"
+        // }
 
         return error
     }
+
 
     return (
         <ThemeProvider theme={theme}>
@@ -111,11 +121,30 @@ export default function SignIn() {
                         alignItems: 'center',
                         marginTop: '30px'
                     }}>
-                        Sign in
+                        Edit User
                     </Typography>
 
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+
+
                         <TextField
+
+                            value={user.name}
+                            error={formError.name ? true : false}
+                            helperText={formError.name ? formError.name : ''}
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Enter name"
+                            name="name"
+                            autoComplete="name"
+                            onChange={handleChange}
+                            autoFocus
+                        />
+
+                        <TextField
+                            value={user.email}
                             error={formError.email ? true : false}
                             helperText={formError.email ? formError.email : ''}
                             margin="normal"
@@ -128,7 +157,7 @@ export default function SignIn() {
                             onChange={handleChange}
                             autoFocus
                         />
-                        <TextField
+                        {/* <TextField
                             error={formError.password ? true : false}
                             helperText={formError.password ? formError.password : ''}
                             margin="normal"
@@ -140,8 +169,7 @@ export default function SignIn() {
                             id="password"
                             onChange={handleChange}
                             autoComplete="current-password"
-
-                        />
+                        /> */}
 
                         <Button
                             type="submit"
@@ -150,15 +178,9 @@ export default function SignIn() {
                             sx={{ mt: 3, mb: 2 }}
                             style={{ marginTop: "20px" }}
                         >
-                            Sign In
+                            Save User
                         </Button>
-                        <Grid container style={{ marginTop: '10px' }} >
-                            <Grid item>
-                                <Link href="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid>
+
                         {(formError.error) &&
                             <Button
                                 type="button"

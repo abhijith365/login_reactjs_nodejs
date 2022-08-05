@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { AuthUser } from '../AuthRouter';
 import { useNavigate } from 'react-router-dom';
 import {
     Button,
@@ -12,58 +11,55 @@ import {
     Typography,
     Container,
     createTheme,
-    ThemeProvider
-} from '@material-ui/core';
+    ThemeProvider,
 
+} from '@material-ui/core';
+import { AuthUser } from '../AuthRouter';
 
 
 const theme = createTheme();
 
-export default function SignIn() {
+export default function AddUser() {
 
     let auth = AuthUser()
-    let navigate = useNavigate()
+    const navigate = useNavigate()
 
-
-    const initialUser = { "email": "", "password": "" }
+    const initialUser = { name: "", "email": "", "password": "" }
     const [user, setUser] = useState(initialUser)
     const [isSubmit, setIsSubmit] = useState(false)
     const [formError, setFormError] = useState({})
-    const [userData, setUserData] = useState(false)
-    // const [data, setData] = useState(null)
 
     useEffect(() => {
 
         if (Object.keys(formError).length === 0 && isSubmit) {
-            console.log('data sending')
-            // handleSubmit()
+            console.log(user)
         }
-    }, [formError, isSubmit, userData])
+
+    }, [formError, isSubmit])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         setIsSubmit(true)
         setFormError(validate(user))
 
+
         if (Object.keys(formError).length === 0) {
 
-            const { data } = await axios.post('http://127.0.0.1:8080/login', user)
+            const userData = await axios.post('http://127.0.0.1:8080/reg', user)
+            const data = userData.data
 
-            if (data.status === 201 && !data.data[0].status) {
-                setFormError({ "error": "User was Blocked" })
-            } else if (data.status === 201) {
-                console.log(data)
-                auth.login(data)
-                navigate('/', { replace: true })
+            if (data.status === 201) {
+                navigate('/admin', { replace: false })
             }
             else {
                 setFormError({ "error": data.message })
+                console.log(data)
             }
 
-
         }
-
     };
+
 
     const handleChange = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value })
@@ -74,6 +70,9 @@ export default function SignIn() {
         const error = {}
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
+        if (!value.name) {
+            error.name = "Username is required"
+        }
         if (!value.email) {
             error.email = "email is required"
         } else if (!regex.test(value.email)) {
@@ -90,6 +89,7 @@ export default function SignIn() {
 
         return error
     }
+
 
     return (
         <ThemeProvider theme={theme}>
@@ -111,10 +111,26 @@ export default function SignIn() {
                         alignItems: 'center',
                         marginTop: '30px'
                     }}>
-                        Sign in
+                        Add New User
                     </Typography>
 
                     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+
+
+                        <TextField
+                            error={formError.name ? true : false}
+                            helperText={formError.name ? formError.name : ''}
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Enter name"
+                            name="name"
+                            autoComplete="name"
+                            onChange={handleChange}
+                            autoFocus
+                        />
+
                         <TextField
                             error={formError.email ? true : false}
                             helperText={formError.email ? formError.email : ''}
@@ -140,7 +156,6 @@ export default function SignIn() {
                             id="password"
                             onChange={handleChange}
                             autoComplete="current-password"
-
                         />
 
                         <Button
@@ -150,12 +165,12 @@ export default function SignIn() {
                             sx={{ mt: 3, mb: 2 }}
                             style={{ marginTop: "20px" }}
                         >
-                            Sign In
+                            Sign Up
                         </Button>
                         <Grid container style={{ marginTop: '10px' }} >
                             <Grid item>
-                                <Link href="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
+                                <Link href="/login" variant="body2">
+                                    {"Already have an account? Log In"}
                                 </Link>
                             </Grid>
                         </Grid>

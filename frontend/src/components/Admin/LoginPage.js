@@ -43,11 +43,11 @@ export default function AdminSignIn() {
         setIsSubmit(true)
         setFormError(validate(user))
 
-        if (Object.keys(formError).length === 0 && isSubmit) {
+        if (Object.keys(formError).length === 0) {
 
             const { data } = await axios.post('http://127.0.0.1:8080/admin/login', user)
 
-            if (data && data.status === 201) {
+            if (data?.status === 201) {
                 auth.adminLogin(data)
                 navigate('/admin', { replace: true })
             } else {

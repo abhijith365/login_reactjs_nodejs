@@ -44,7 +44,7 @@ export default function SignUp() {
         setFormError(validate(user))
 
 
-        if (Object.keys(formError).length === 0 && isSubmit) {
+        if (Object.keys(formError).length === 0) {
 
             const userData = await axios.post('http://127.0.0.1:8080/reg', user)
             const data = userData.data

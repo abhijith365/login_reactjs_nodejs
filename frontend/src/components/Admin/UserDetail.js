@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import './style.css'
+import { Button } from "@material-ui/core";
 
 function UserDetails() {
     const [alluser, setAllUser] = useState([]);
@@ -23,17 +24,11 @@ function UserDetails() {
     }, [state]);
 
     const addUser = () => {
-        navigate("/adduser");
+        navigate("/admin/addUser");
     };
 
     const BlockUser = async (_id) => {
         try {
-            // const config = {
-            //     headers: {
-            //         "Authorization": `Bearer ${token}`
-            //     },
-            // };
-
             Swal.fire({
                 title: "Do you Want to block?",
                 showDenyButton: true,
@@ -64,12 +59,6 @@ function UserDetails() {
 
     const unBlockUser = async (_id) => {
         try {
-            // const config = {
-            //     headers: {
-            //         "Authorization": `Bearer ${token}`
-            //     },
-            // };
-            //  setLoading(true)
             Swal.fire({
                 title: "Do you Want to unblock?",
                 showDenyButton: true,
@@ -106,13 +95,15 @@ function UserDetails() {
                         <h1 className="text-white  justify-center text-center font-bold p-8">
                             USER Details
                         </h1>
-                        <button
-                            type="button"
-                            className="inline-block px-6 m-5 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+                        <Button variant="contained"
+                            className="bg-green-400 text-gray-50 rounded-md px-2"
+                            style={{ margin: "5px 0 10px 0" }}
+                            color="primary"
                             onClick={addUser}
                         >
                             ADD USER
-                        </button>
+                        </Button>
+
                         <table className=" table text-gray-400 border-separate space-y-3 text-sm w-full">
                             <thead className="bg-gray-800 text-gray-500">
                                 <tr>
@@ -150,31 +141,37 @@ function UserDetails() {
 
                                             <td className="p-3">
                                                 {item.status ? (
-                                                    <button
+                                                    <Button variant="contained"
                                                         className="bg-red-400 text-gray-50 rounded-md px-2 cursor-pointer"
+                                                        color="secondary"
                                                         onClick={() => {
                                                             BlockUser(item._id);
-                                                        }}
-                                                    >
+                                                        }}>
                                                         Block
-                                                    </button>
+                                                    </Button>
+
+
                                                 ) : (
-                                                    <button
+                                                    <Button variant="contained"
                                                         className="bg-green-400 text-gray-50 rounded-md px-2"
+                                                        color="primary"
                                                         onClick={() => {
                                                             unBlockUser(item._id);
-                                                        }}
-                                                    >
+
+                                                        }}>
                                                         Unblock
-                                                    </button>
+                                                    </Button>
                                                 )}
-                                                <button
+                                                <Button variant="contained"
+                                                    color="primary"
+                                                    style={{ margin: "0 0 0 10px" }}
                                                     className="bg-blue-400 text-gray-50 rounded-md px-4 ml-5 cursor-pointer"
-                                                    onClick={() => { navigate('/edituser', { state: { _id: item._id } }) }}
+                                                    onClick={() => { navigate('/admin/editUser', { state: { _id: item._id } }) }}
                                                 >
                                                     {" "}
                                                     Edit
-                                                </button>
+                                                </Button>
+
                                             </td>
                                         </tr>
                                     );
