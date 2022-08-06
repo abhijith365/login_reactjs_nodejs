@@ -3,12 +3,35 @@ import { AppBar, Button, Toolbar, Typography } from '@material-ui/core'
 
 import useStyle from './style'
 import { AuthUser } from '../AuthRouter'
+import Swal from "sweetalert2";
+
 
 export default function Navbar() {
     let auth = AuthUser()
     let user = (auth.user) ? auth.user.data.name : false
     const navigate = useNavigate();
 
+    const logout = () => {
+        try {
+            Swal.fire({
+                title: "Do you Want to logout?",
+                showDenyButton: true,
+                confirmButtonText: "yes",
+                denyButtonText: "No",
+                customClass: {
+                    actions: "my-actions",
+                    confirmButton: "order-2",
+                    denyButton: "order-3",
+                },
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    auth.logOut()
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const classes = useStyle()
     return (
@@ -21,7 +44,7 @@ export default function Navbar() {
                 {user ? (
                     <div className={classes.profile}>
                         <Typography className={classes.userName} varient="h6"></Typography>
-                        <Button variant='contained' onClick={() => { auth.logOut() }} color="secondary">Log Out</Button>
+                        <Button variant='contained' onClick={logout} color="secondary">Log Out</Button>
                     </div>
 
                 ) :
